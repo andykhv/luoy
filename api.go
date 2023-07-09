@@ -17,12 +17,26 @@ func NewLuoy(address string) {
 
 	router.GET("/cache/:key", func(context *gin.Context) {
 		key := context.Param("key")
-		value, ok := cache.data[key]
+		value, ok := cache.Get(key)
 
 		if ok {
 			context.IndentedJSON(http.StatusFound, value)
 		} else {
 			context.String(http.StatusNotFound, fmt.Sprintf("Key {%v} not found", key))
+		}
+	})
+
+	router.PUT("/cache/:key", func(context *gin.Context) {
+		key := context.Param("key")
+		var value interface{}
+		context.BindJSON(&value)
+
+		ok := cache.Insert(key, value)
+
+		if ok {
+			context.IndentedJSON(http.StatusOK, value)
+		} else {
+			context.String(http.StatusInternalServerError, "internal error, sorry!")
 		}
 	})
 
